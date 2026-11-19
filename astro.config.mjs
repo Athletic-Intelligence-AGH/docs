@@ -107,7 +107,7 @@ export default defineConfig({
           },
         },
       },
-      sidebar: [
+      sidebar: [{ label: 'Start', items: ['wprowadzenie'] }],
     }),
   ],
 });

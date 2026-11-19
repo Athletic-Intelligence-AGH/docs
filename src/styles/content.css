@@ -394,9 +394,10 @@
   display: none;
 }
 .expressive-code .frame .header .title {
-  padding: 0;
+  padding: 0 4px 0 0;
   border: 0;
   background: none;
+  overflow: visible;
   color: var(--c-ink-muted);
 }
 .expressive-code .frame pre {
