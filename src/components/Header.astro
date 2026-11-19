@@ -21,7 +21,7 @@ const t = ui(lang);
       </span>
     </span>
   </a>
-  <div class="hdr-search">
+  <div class="hdr-search" data-label={t.searchDocs} data-hint={t.searchShortcut}>
     <Search />
   </div>
   <div class="hdr-actions">
@@ -45,3 +45,18 @@ const t = ui(lang);
     <ThemeToggle />
   </div>
 </div>
+
+{/* Własna etykieta wyszukiwarki (bez i18n Starlight); inline, by uniknąć mignięcia „Szukaj”. */}
+<script is:inline>
+  (() => {
+    const box = document.querySelector('.hdr-search');
+    if (!box) return;
+    const label = box.dataset.label || '';
+    const btn = box.querySelector('button[data-open-modal]');
+    const span = btn && btn.querySelector('span');
+    if (span) span.textContent = label;
+    if (btn) btn.setAttribute('aria-label', label + ' (' + (box.dataset.hint || '') + ')');
+    const dialog = box.querySelector('dialog');
+    if (dialog) dialog.setAttribute('aria-label', label);
+  })();
+</script>

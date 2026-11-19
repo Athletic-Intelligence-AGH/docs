@@ -1,0 +1,18 @@
+---
+// Wersja ThemeProvider ze Starlight z jedną zmianą: bez zapamiętanego wyboru motyw jest ZAWSZE
+// ciemny (preferencja systemu jest ignorowana). Wybór z przełącznika zapisuje ThemeToggle
+// w localStorage pod kluczem `starlight-theme`.
+---
+
+{/* Inline, żeby uniknąć mignięcia motywu. */}
+<script is:inline>
+  (() => {
+    let stored = null;
+    try {
+      stored = localStorage.getItem('starlight-theme');
+    } catch {
+      /* brak dostępu do localStorage: zostaje dark */
+    }
+    document.documentElement.dataset.theme = stored === 'light' ? 'light' : 'dark';
+  })();
+</script>

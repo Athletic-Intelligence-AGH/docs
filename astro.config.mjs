@@ -72,6 +72,8 @@ export default defineConfig({
         MobileMenuToggle: './src/components/MobileMenuToggle.astro',
         // Kopia ze Starlight: breakpoint szuflady 900px (800px w oryginale).
         PageFrame: './src/components/PageFrame.astro',
+        // Domyślnie dark niezależnie od preferencji systemu.
+        ThemeProvider: './src/components/ThemeProvider.astro',
       },
     }),
   ],

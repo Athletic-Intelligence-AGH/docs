@@ -166,11 +166,21 @@ site-search button[data-open-modal] > kbd {
   line-height: 16px;
   white-space: nowrap;
 }
+/* Skrót zawsze jako ⌘K (jak w designie); podpowiedź „Ctrl K” jest w aria-label przycisku. */
+site-search button[data-open-modal] > kbd {
+  gap: 0;
+}
+site-search button[data-open-modal] > kbd::before {
+  content: '⌘';
+}
 site-search button[data-open-modal] > kbd > kbd {
   padding: 0;
   border: 0;
   background: none;
   font: inherit;
+}
+site-search button[data-open-modal] > kbd > kbd:first-child {
+  display: none;
 }
 
 /* Okno wyszukiwania */
