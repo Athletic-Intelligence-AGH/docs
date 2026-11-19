@@ -6,6 +6,9 @@ const GITHUB_EDIT_BASE = 'https://github.com/Athletic-Intelligence-AGH/docs/edit
 
 export default defineConfig({
   site: 'https://docs.aisports.pl',
+  redirects: {
+    '/': '/start/wprowadzenie/',
+  },
   integrations: [
     starlight({
       title: 'Athletic Intelligence Docs',
@@ -25,7 +28,33 @@ export default defineConfig({
           href: 'https://github.com/Athletic-Intelligence-AGH/docs',
         },
       ],
-      sidebar: [{ label: 'Start', items: ['wprowadzenie'] }],
+      sidebar: [
+        { label: 'Start', items: ['start/wprowadzenie', 'start/zadanie-od-a-do-z'] },
+        {
+          label: 'Issues',
+          items: [
+            'issues/tworzenie-issues',
+            'issues/przydzielanie-i-priorytety',
+            'issues/cykl-zycia-issue',
+          ],
+        },
+        {
+          label: 'Git i Pull Requesty',
+          items: ['git/branche-i-commity', 'git/pull-requesty', 'git/code-review'],
+        },
+        { label: 'Wydania', items: ['wydania/ci-merge-i-release'] },
+        { label: 'Repozytorium', items: ['repozytorium/konfiguracja-github'] },
+        {
+          label: 'Więcej',
+          items: [
+            { label: 'Hub', link: 'https://hub.aisports.pl' },
+            {
+              label: 'Organizacja na GitHubie',
+              link: 'https://github.com/Athletic-Intelligence-AGH',
+            },
+          ],
+        },
+      ],
     }),
   ],
 });

@@ -1,0 +1,82 @@
+---
+title: Pull requesty
+description: Pull request to miejsce, gdzie zmiana jest omawiana, sprawdzana i dopiero potem trafia do main. Dobry PR da się przeczytać w kilkanaście minut i ma jasny cel.
+draft: false
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+Pull request to miejsce, gdzie zmiana jest omawiana, sprawdzana i dopiero potem trafia do `main`. Dobry PR da się przeczytać w kilkanaście minut i ma jasny cel.
+
+:::tip[Wskazówka]
+Otwórz draft PR, gdy tylko masz działający szkic. Feedback na wczesnym etapie jest tańszy niż poprawki po skończonej pracy.
+:::
+
+## Zasady
+
+- **Jeden PR = jeden issue** (lub jedna spójna zmiana). Orientacyjnie do ok. 400 zmienionych linii, większe PR dzielimy na etapy.
+- **Tytuł w formacie Conventional Commits,** np. `feat(matches): add team filter to match list`, bo przy squash merge stanie się tytułem commita.
+- **Draft PR otwieramy wcześnie,** gdy chcemy pokazać kierunek lub zapytać o zdanie. „Ready for review” dopiero przy zielonym CI i po własnym przeglądzie diffu.
+- **Powiązanie z issue:** `Closes #123` w opisie PR.
+- **Reviewerzy:** minimum 1 zatwierdzający. Przy zmianach wrażliwych (bezpieczeństwo, migracje danych, publiczne API) 2 osoby albo właściciel kodu z `CODEOWNERS`.
+- **Zrzuty ekranu lub nagranie** dla każdej zmiany w UI (przed i po).
+
+## Szablon opisu PR
+
+Szablon leży w repozytorium, więc każdy nowy PR zaczyna się od tych samych pytań.
+
+```markdown title=".github/pull_request_template.md"
+## Co i dlaczego
+
+Krótko: co zmienia ten PR i po co. Closes #
+
+## Jak sprawdzić
+
+Kroki do ręcznego przetestowania lub wskazanie testów.
+
+## Zrzuty ekranu (jeśli UI)
+
+## Checklista autora
+
+- [ ] Przejrzałem/am swój diff
+- [ ] Testy dodane lub zaktualizowane, CI zielone
+- [ ] Dokumentacja / README zaktualizowane (jeśli trzeba)
+- [ ] Brak sekretów, debugów i zakomentowanego kodu
+- [ ] Zmiany łamiące opisane (jeśli są)
+```
+
+## Wynik review
+
+Reviewer kończy przegląd jedną z trzech decyzji.
+
+| Decyzja         | Kiedy                                                                    |
+| --------------- | ------------------------------------------------------------------------ |
+| Approve         | Brak blockerów. Pozostałe uwagi można załatwić po merge lub opcjonalnie. |
+| Request changes | Są blockery, które trzeba poprawić przed merge.                          |
+| Comment         | Pytania lub uwagi bez decyzji.                                           |
+
+## Co autor robi po otwarciu PR
+
+<Steps>
+
+1. **Oznacza reviewerów**
+
+   I daje znak, że PR jest gotowy: kanał zespołu lub @mention.
+
+2. **Odpowiada na każdy komentarz**
+
+   Poprawką lub uzasadnieniem. Rozwiązuje wątek (Resolve) dopiero po ustaleniu.
+
+3. **Dokłada nowe commity**
+
+   Bez przepisywania historii, i prosi o ponowne spojrzenie.
+
+4. **Merguje**
+
+   Gdy ma wymagane zatwierdzenia i zielone CI.
+
+</Steps>
+
+:::danger[Ważne]
+Nie merguj, dopóki nie masz wymaganych zatwierdzeń i zielonego CI. Samo kliknięcie „Merge” bez nich blokują ustawienia repozytorium.
+:::

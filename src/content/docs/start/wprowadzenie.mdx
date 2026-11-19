@@ -1,0 +1,88 @@
+---
+title: Workflow deweloperski
+description: Jak planujemy pracę, prowadzimy issues, pracujemy w Git i wypuszczamy zmiany w zespołach AGH Athletic Intelligence.
+draft: false
+---
+
+import { Steps, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## Po co ten dokument
+
+Każda zmiana w kodzie zaczyna się od issue, przechodzi przez krótki branch i Pull Request z review, a kończy na zielonym CI i merge do `main`.
+
+Dzięki temu każdy zespół pracuje tak samo, a nowa osoba może wejść w projekt w jeden dzień.
+
+```sh title="Terminal"
+git switch -c feat/123-filtr-druzyn
+git commit -m "feat(matches): add team filter to match list"
+gh pr create --draft --title "feat(matches): add team filter"
+# w opisie PR: Closes #123, CI uruchamia się automatycznie
+```
+
+## Pięć zasad
+
+- **Nic bez issue.** Jeśli zmiana nie ma issue, nikt nie wie, że powstaje ani po co.
+- **`main` zawsze działa.** Nikt nie pushuje do niego bezpośrednio, a merge wymaga zielonego CI i review.
+- **Małe kawałki.** Jeden issue to jeden PR, a PR ma być do przeczytania w kilkanaście minut.
+- **Review to rozmowa, nie bramka.** Chodzi o jakość kodu i wiedzę w zespole, nie o szukanie winnych.
+- **Zapisujemy to, co ustalone.** Decyzje lądują w issue lub PR, nie w prywatnych wiadomościach.
+
+## Role
+
+| Rola                   | Odpowiada za                                                         |
+| ---------------------- | -------------------------------------------------------------------- |
+| Autor                  | Doprowadzenie issue do końca: kod, testy, opis PR, reakcja na review |
+| Reviewer               | Rzeczowa ocena PR w ciągu 1 dnia roboczego                           |
+| Maintainer / tech lead | Konfiguracja repo, rozstrzyganie sporów technicznych, release        |
+| Koordynator / PO       | Priorytety, zakres sprintu, akceptacja kryteriów issue               |
+
+## Jak to działa
+
+<Steps>
+
+1. **Issue**
+
+   Każda zmiana zaczyna się od issue z kryteriami akceptacji.
+
+2. **Branch**
+
+   Krótki branch z numerem issue, np. `feat/123-opis`.
+
+3. **Pull request**
+
+   Draft otwarty wcześnie, opis z `Closes #123`.
+
+4. **Review**
+
+   Minimum jedno zatwierdzenie, pierwsza odpowiedź w ciągu 1 dnia roboczego.
+
+5. **Merge**
+
+   Squash and merge przy zielonym CI. Issue zamyka się samo.
+
+</Steps>
+
+## Zacznij tutaj
+
+<CardGrid>
+  <LinkCard
+    title="Tworzenie issues"
+    description="Szablony, etykiety i kryteria akceptacji."
+    href="/issues/tworzenie-issues/"
+  />
+  <LinkCard
+    title="Branche i commity"
+    description="Nazewnictwo branchy i Conventional Commits."
+    href="/git/branche-i-commity/"
+  />
+  <LinkCard
+    title="Pull requesty"
+    description="Zasady, szablon opisu i checklista autora."
+    href="/git/pull-requesty/"
+  />
+  <LinkCard
+    title="Konfiguracja GitHub"
+    description="Branch protection, CODEOWNERS i automatyzacje."
+    href="/repozytorium/konfiguracja-github/"
+  />
+</CardGrid>
