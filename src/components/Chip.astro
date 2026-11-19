@@ -1,0 +1,68 @@
+---
+/**
+ * Chip: mała etykieta typu, priorytetu lub statusu.
+ * Znaczenie niesie tekst i ikona (nie tylko kolor), kolory wariantów pochodzą z tokenów.
+ *
+ * <Chip>type: bug</Chip>
+ * <Chip variant="danger">prio: P0</Chip>
+ */
+interface Props {
+  variant?: 'neutral' | 'muted' | 'ok' | 'warn' | 'danger';
+}
+const { variant = 'neutral' } = Astro.props;
+const icons: Record<string, string> = {
+  ok: 'M5 12l5 5 9-10',
+  warn: 'M12 7v6M12 17h.01',
+  danger: 'M7 7l10 10M17 7L7 17',
+};
+const icon = icons[variant];
+---
+
+<span class:list={['chip', `chip--${variant}`]}>
+  {icon && (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="3"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d={icon} />
+    </svg>
+  )}
+  <slot />
+</span>
+
+<style>
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 24px;
+    padding: 0 8px;
+    border: 1px solid var(--c-border-strong);
+    border-radius: 6px;
+    font-family: var(--c-mono);
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--c-ink);
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  .chip--ok {
+    color: var(--c-success);
+  }
+  .chip--warn {
+    color: var(--c-warning);
+  }
+  .chip--danger {
+    color: var(--c-danger);
+  }
+  .chip--muted {
+    color: var(--c-ink-muted);
+  }
+</style>

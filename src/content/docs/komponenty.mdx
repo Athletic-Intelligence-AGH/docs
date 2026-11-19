@@ -1,0 +1,110 @@
+---
+title: Komponenty dokumentacji
+description: Przegląd elementów, z których składają się strony docs.aisports.pl. Strona techniczna, poza nawigacją.
+---
+
+import { Steps, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import Chip from '../../components/Chip.astro';
+
+Elementy, z których składają się strony docs.aisports.pl. Kolory i krój pochodzą z design systemu, a ta strona służy do przeglądu wizualnego.
+
+## Callout
+
+:::note
+Szablony issues trzymamy w repozytorium, w katalogu `.github/ISSUE_TEMPLATE/`.
+:::
+
+:::tip
+Otwórz draft PR, gdy masz działający szkic. Feedback wcześnie jest tańszy.
+:::
+
+:::caution
+Po review nie przepisuj historii. Dokładaj nowe commity.
+:::
+
+:::danger
+Wyciekły klucz uznajemy za skompromitowany i rotujemy. Usunięcie commita nie wystarczy.
+:::
+
+## Bloki kodu
+
+```sh title="Terminal"
+git fetch origin
+git rebase origin/main
+git push --force-with-lease
+```
+
+```diff title=".github/CODEOWNERS"
+  /frontend/  @org/team-frontend
+- /data/      @org/team-core
++ /data/      @org/team-data
+```
+
+## Elementy w tekście
+
+Typ issue: <Chip>type: feature</Chip> <Chip>type: bug</Chip> <Chip>type: chore</Chip> <Chip>type: spike</Chip>
+
+Priorytet: <Chip variant="danger">prio: P0</Chip> <Chip variant="warn">prio: P1</Chip> <Chip variant="muted">prio: P2</Chip> <Chip variant="muted">prio: P3</Chip>
+
+Status i decyzja: <Chip>In progress</Chip> <Chip variant="ok">Approve</Chip> <Chip variant="danger">Request changes</Chip> <Chip variant="warn">blocked</Chip>
+
+Klawisze i kod: <kbd>⌘K</kbd> <kbd>Esc</kbd> `main` `Closes #123`
+
+Zobacz [konfigurację GitHub](/wprowadzenie/) i [organizację ↗](https://github.com/Athletic-Intelligence-AGH).
+
+- Lista z kwadracikiem
+- Drugi punkt listy
+- Trzeci punkt listy
+
+## Tabela
+
+| Etykieta | Czas reakcji     |
+| -------- | ---------------- |
+| P0       | Natychmiast      |
+| P1       | W sprincie       |
+| P2       | Gdy jest miejsce |
+
+## Kroki
+
+<Steps>
+
+1. **Issue**
+
+   Kryteria akceptacji.
+
+2. **Branch**
+
+   Numer issue w nazwie.
+
+3. **Pull request**
+
+   Draft, potem review.
+
+</Steps>
+
+## Checklista
+
+- [x] Przejrzałem/am swój diff
+- [x] CI jest zielone
+- [ ] Dokumentacja zaktualizowana
+
+## Zacznij tutaj
+
+<CardGrid>
+  <LinkCard
+    title="Pull requesty"
+    description="Zasady, szablon opisu i checklista autora."
+    href="/wprowadzenie/"
+  />
+  <LinkCard
+    title="Code review"
+    description="Jak czytamy i oceniamy zmiany."
+    href="/wprowadzenie/"
+  />
+</CardGrid>
+
+## Typografia
+
+### Nagłówek trzeciego poziomu
+
+Tekst akapitu: każda zmiana zaczyna się od issue z kryteriami akceptacji.

@@ -1,0 +1,460 @@
+/*
+ * Komponenty treści: proza, callouty, tabele, kroki, checklisty, karty, bloki kodu.
+ * Kolory przez tokeny designu (--surface-*, --border*, --ink*, --focus, --success, --warning, --danger).
+ * Aliasy --c-* mają fallbacki, więc plik działa też bez tokens.css.
+ */
+:root {
+  --c-surface-0: var(--surface-0, #07080b);
+  --c-surface-1: var(--surface-1, #12141a);
+  --c-surface-2: var(--surface-2, #1b1e26);
+  --c-border: var(--border, #2a2e38);
+  --c-border-strong: var(--border-strong, #7c828f);
+  --c-ink: var(--ink, #f6f6f4);
+  --c-ink-muted: var(--ink-muted, #a3a7b0);
+  --c-focus: var(--focus, #6fa3ff);
+  --c-success: var(--success, #3fbf8a);
+  --c-warning: var(--warning, #f2b33d);
+  --c-danger: var(--danger, #ff7a6b);
+  --c-mono: var(--font-mono, ui-monospace, 'SF Mono', Menlo, Consolas, monospace);
+}
+:root[data-theme='light'] {
+  --c-surface-0: var(--surface-0, #efefec);
+  --c-surface-1: var(--surface-1, #fbfbf9);
+  --c-surface-2: var(--surface-2, #e2e2de);
+  --c-border: var(--border, #c9c9c3);
+  --c-border-strong: var(--border-strong, #666b76);
+  --c-ink: var(--ink, #0b0c0f);
+  --c-ink-muted: var(--ink-muted, #4a4e57);
+  --c-focus: var(--focus, #1f5fdb);
+  --c-success: var(--success, #09663e);
+  --c-warning: var(--warning, #7a4f00);
+  --c-danger: var(--danger, #b3261e);
+}
+
+/* ---------- Proza ---------- */
+.sl-markdown-content :is(h2, h3, h4):not(:where(.not-content *)) {
+  color: var(--c-ink);
+  font-weight: 600;
+}
+.sl-markdown-content h2:not(:where(.not-content *)) {
+  margin: 64px 0 16px;
+  font-size: 28px;
+  line-height: 36px;
+}
+.sl-markdown-content h3:not(:where(.not-content *)) {
+  margin: 40px 0 12px;
+  font-size: 20px;
+  line-height: 28px;
+}
+.sl-markdown-content :is(p, ul, ol):not(:where(.not-content *)) {
+  font-size: 16px;
+  line-height: 28px;
+}
+.sl-markdown-content p:not(:where(.not-content *)) {
+  margin: 0 0 16px;
+}
+.sl-markdown-content strong:not(:where(.not-content *)) {
+  font-weight: 600;
+}
+.sl-markdown-content a:not(:where(.not-content *)) {
+  color: inherit;
+  text-underline-offset: 4px;
+}
+.sl-markdown-content a:focus-visible,
+.sl-markdown-content button:focus-visible,
+.sl-markdown-content summary:focus-visible {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 2px;
+}
+
+/* Listy nieuporządkowane z kwadracikiem 6px */
+.sl-markdown-content
+  ul:not(:where(.not-content *, .contains-task-list, .card-grid, .sl-steps, [role='tablist'])) {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+.sl-markdown-content
+  ul:not(:where(.not-content *, .contains-task-list, .card-grid, .sl-steps, [role='tablist']))
+  > li {
+  position: relative;
+  padding-left: 26px;
+  margin-bottom: 14px;
+  line-height: 26px;
+}
+.sl-markdown-content
+  ul:not(:where(.not-content *, .contains-task-list, .card-grid, .sl-steps, [role='tablist']))
+  > li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 10px;
+  width: 6px;
+  height: 6px;
+  background: var(--c-ink);
+}
+.sl-markdown-content ol:not(:where(.not-content *)) {
+  margin: 0 0 16px;
+  padding-left: 26px;
+}
+.sl-markdown-content ol:not(:where(.not-content *)) > li {
+  margin-bottom: 14px;
+  line-height: 26px;
+}
+
+/* Kod inline i klawisze */
+.sl-markdown-content :not(pre) > code:not(:where(.not-content *)) {
+  font-family: var(--c-mono);
+  font-size: 0.875em;
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  padding: 1px 6px;
+  color: var(--c-ink);
+}
+.sl-markdown-content kbd:not(:where(.not-content *)) {
+  display: inline-block;
+  font-family: var(--c-mono);
+  font-size: 12px;
+  line-height: 16px;
+  padding: 3px 8px;
+  border: 1px solid var(--c-border-strong);
+  border-radius: 6px;
+  color: var(--c-ink-muted);
+  white-space: nowrap;
+}
+
+/* ---------- Callouty (asides Starlight) ---------- */
+.sl-markdown-content .starlight-aside {
+  --aside-accent: var(--c-ink);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 24px 0;
+  padding: 20px 20px 20px 68px;
+  position: relative;
+  border: 1px solid var(--c-border);
+  border-radius: 16px;
+  background: var(--c-surface-1);
+  color: var(--c-ink);
+}
+.sl-markdown-content .starlight-aside--tip {
+  --aside-accent: var(--c-success);
+}
+.sl-markdown-content .starlight-aside--caution {
+  --aside-accent: var(--c-warning);
+}
+.sl-markdown-content .starlight-aside--danger {
+  --aside-accent: var(--c-danger);
+}
+.sl-markdown-content .starlight-aside__title {
+  display: block;
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--aside-accent);
+}
+.sl-markdown-content .starlight-aside__icon {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  box-sizing: content-box;
+  width: 18px;
+  height: 18px;
+  padding: 7px;
+  border-radius: 10px;
+  background: var(--c-surface-2);
+  color: var(--aside-accent);
+}
+.sl-markdown-content .starlight-aside__content,
+.sl-markdown-content .starlight-aside__content > :last-child {
+  margin: 0;
+  font-size: 15px;
+  line-height: 24px;
+}
+.sl-markdown-content .starlight-aside__content > * + * {
+  margin-top: 8px;
+}
+
+/* ---------- Tabele ---------- */
+.sl-markdown-content table:not(:where(.not-content *)) {
+  display: table;
+  width: 100%;
+  margin: 24px 0;
+  border: 1px solid var(--c-border);
+  border-radius: 16px;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 20px;
+}
+.sl-markdown-content th:not(:where(.not-content *)) {
+  padding: 12px 20px;
+  text-align: start;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-ink-muted);
+  background: var(--c-surface-1);
+  border: 0;
+  border-bottom: 1px solid var(--c-border);
+}
+.sl-markdown-content td:not(:where(.not-content *)) {
+  padding: 14px 20px;
+  border: 0;
+  border-bottom: 1px solid var(--c-border);
+  vertical-align: top;
+  color: var(--c-ink);
+}
+.sl-markdown-content tbody tr:last-child td {
+  border-bottom: 0;
+}
+.sl-markdown-content td:first-child {
+  font-weight: 500;
+  white-space: nowrap;
+}
+.sl-markdown-content tr:nth-child(2n) {
+  background: none;
+}
+@media (max-width: 600px) {
+  .sl-markdown-content table:not(:where(.not-content *)) {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+/* ---------- Kroki (<Steps>) ---------- */
+.sl-markdown-content .sl-steps {
+  --bullet-size: 40px;
+  list-style: none;
+  counter-reset: s;
+  margin: 24px 0;
+  padding: 0;
+  padding-inline-start: 0;
+}
+.sl-markdown-content .sl-steps > li {
+  counter-increment: s;
+  position: relative;
+  min-height: 40px;
+  margin: 0;
+  padding: 4px 0 24px 56px;
+  padding-inline-start: 56px;
+  border: 0;
+  font-size: 16px;
+  line-height: 26px;
+}
+.sl-markdown-content .sl-steps > li::before {
+  content: counter(s);
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--c-border-strong);
+  border-radius: 10px;
+  background: none;
+  font-family: var(--c-mono);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--c-ink);
+}
+.sl-markdown-content .sl-steps > li::after {
+  content: '';
+  position: absolute;
+  left: 19px;
+  top: 48px;
+  bottom: 8px;
+  width: 1px;
+  background: var(--c-border);
+}
+.sl-markdown-content .sl-steps > li:last-child {
+  padding-bottom: 0;
+}
+.sl-markdown-content .sl-steps > li:last-child::after {
+  display: none;
+}
+.sl-markdown-content .sl-steps > li > * {
+  margin: 0;
+}
+.sl-markdown-content .sl-steps > li strong {
+  display: block;
+}
+
+/* ---------- Checklisty (markdown task list) ---------- */
+.sl-markdown-content ul.contains-task-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+.sl-markdown-content .task-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--c-border);
+  font-size: 16px;
+  line-height: 24px;
+}
+.sl-markdown-content .task-list-item:last-child {
+  border-bottom: 0;
+}
+.sl-markdown-content .task-list-item input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  border: 1px solid var(--c-border-strong);
+  border-radius: 6px;
+  background: none;
+}
+.sl-markdown-content .task-list-item input[type='checkbox']:checked {
+  background: var(--c-ink);
+  border-color: var(--c-ink);
+}
+.sl-markdown-content .task-list-item input[type='checkbox']:checked::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--c-surface-0);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* ---------- Karty „Zacznij tutaj” (CardGrid + LinkCard) ---------- */
+.sl-markdown-content .card-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+@media (max-width: 800px) {
+  .sl-markdown-content .card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.sl-markdown-content .sl-link-card {
+  align-items: flex-start;
+  gap: 12px;
+  padding: 24px;
+  border: 1px solid var(--c-border);
+  border-radius: 16px;
+  background: var(--c-surface-1);
+  color: var(--c-ink);
+  box-shadow: none;
+}
+.sl-markdown-content .sl-link-card:hover {
+  border-color: var(--c-border-strong);
+  background: var(--c-surface-1);
+}
+.sl-markdown-content .sl-link-card .title {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  color: var(--c-ink);
+  text-decoration: none;
+}
+.sl-markdown-content .sl-link-card .description {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--c-ink-muted);
+}
+.sl-markdown-content .sl-link-card .icon {
+  color: var(--c-ink);
+}
+.sl-markdown-content .sl-link-card:focus-within {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 2px;
+}
+
+/* ---------- Bloki kodu (Expressive Code) ---------- */
+.expressive-code .frame {
+  position: relative;
+}
+.expressive-code .frame .header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 44px;
+  padding-inline: 20px 120px;
+}
+.expressive-code .frame .header::before,
+.expressive-code .frame .header::after {
+  display: none;
+}
+.expressive-code .frame .header .title {
+  padding: 0 4px 0 0;
+  border: 0;
+  background: none;
+  overflow: visible;
+  color: var(--c-ink-muted);
+}
+.expressive-code .frame pre {
+  position: static;
+}
+.expressive-code .frame pre[data-language]::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 0;
+  right: 108px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  font-family: var(--c-mono);
+  font-size: 12px;
+  color: var(--c-ink-muted);
+  pointer-events: none;
+  z-index: 2;
+}
+.expressive-code .frame .copy {
+  inset-block-start: 6px;
+  inset-inline-end: 8px;
+  z-index: 2;
+}
+.expressive-code .frame .copy button {
+  width: 92px;
+  height: 32px;
+  opacity: 1;
+  border-radius: 8px;
+  background: none;
+}
+.expressive-code .frame .copy button > div {
+  display: none;
+}
+.expressive-code .frame .copy button::before {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-inline-end: 10px;
+  border: 1px solid var(--c-border-strong);
+  border-radius: 8px;
+  opacity: 1;
+  content: 'Kopiuj';
+  color: var(--c-ink);
+  font-family: var(--c-mono);
+  font-size: 12px;
+}
+.expressive-code .frame .copy button::after {
+  inset: 9px auto auto 10px;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  mask-size: contain;
+  -webkit-mask-size: contain;
+  background-color: var(--c-ink);
+}
+.expressive-code .frame .copy button:focus-visible {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 2px;
+}
