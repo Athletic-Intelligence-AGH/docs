@@ -24,6 +24,17 @@ npm run check     # sprawdzanie typów i treści (astro check)
 
 Przed otwarciem PR uruchom `npm run lint`, `npm run check` i `npm run build`.
 
+## Workflow
+
+| Scenariusz                | Polecenie                                                                              |
+| ------------------------- | -------------------------------------------------------------------------------------- |
+| Lokalnie bez Dockera      | `make install && make dev` (http://localhost:4321)                                     |
+| Lokalnie w Dockerze (HMR) | `make docker-dev`, `make docker-down`                                                  |
+| Lint, typy, build         | `make lint`, `make check`, `make build`                                                |
+| Obraz release lokalnie    | `make docker-build` (`docs:local`)                                                     |
+| Release                   | tag `vX.Y.Z` (obraz w GHCR + GitHub Release), `-rc.N` to dry-run                       |
+| VPS                       | `sudo deploy-docs vX.Y.Z`, pierwsze uruchomienie: [deploy/README.md](deploy/README.md) |
+
 ## Struktura katalogów
 
 ```text
@@ -85,10 +96,14 @@ Logo to plik `src/assets/logo.svg`. Obecnie jest to placeholder („AI”).
    git push origin vX.Y.Z
    ```
 
-3. Workflow `release.yml` buduje stronę, tworzy GitHub Release i wdraża ją na
-   [docs.aisports.pl](https://docs.aisports.pl).
-4. Tag pre-release z sufiksem `-rc.N` (np. `v1.2.0-rc.1`) to próba (dry-run): workflow buduje i
-   waliduje paczkę, ale **nie wdraża** na produkcję.
+3. Workflow `release.yml` uruchamia lint, `astro check` i build, buduje obraz z plikami
+   statycznymi (`ghcr.io/athletic-intelligence-agh/docs:vX.Y.Z`, jak w `athletic-hub`) i tworzy
+   GitHub Release z automatycznymi notatkami. Wymaga tylko `GITHUB_TOKEN`.
+4. Wdrożenie na [docs.aisports.pl](https://docs.aisports.pl) to ręczny krok na VPS:
+   `sudo deploy-docs vX.Y.Z` (wyciąga pliki z obrazu, atomowo przełącza symlink, który serwuje
+   Caddy). Skrypt i założenia opisuje [deploy/README.md](deploy/README.md).
+5. Tag pre-release z sufiksem `-rc.N` (np. `v1.2.0-rc.1`) to próba (dry-run): workflow buduje i
+   waliduje stronę oraz obraz, ale **nie wypycha obrazu** do GHCR.
 
 Szczegóły wdrożenia, serwera i procedury awaryjnej opisuje [deploy/README.md](deploy/README.md).
 

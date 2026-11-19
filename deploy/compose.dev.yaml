@@ -1,0 +1,47 @@
+# Dev w Dockerze: Astro dev server z HMR, kod z bind mountu, node_modules w named volume.
+#   docker compose -f deploy/compose.dev.yaml up        (albo: make docker-dev)
+# Strona: http://localhost:4321. Działa jako Twój użytkownik (DEV_UID/DEV_GID, domyślnie 1000),
+# więc pliki tworzone w repo (.astro, dist) nie należą do roota.
+name: athletic-docs-dev
+
+services:
+  # Jednorazowo jako root: node_modules w świeżym volume należy do roota, a dev działa bez roota.
+  init:
+    image: node:22-alpine
+    user: '0:0'
+    volumes:
+      - node_modules:/app/node_modules
+    command: chown ${DEV_UID:-1000}:${DEV_GID:-1000} /app/node_modules
+
+  dev:
+    image: node:22-alpine
+    user: '${DEV_UID:-1000}:${DEV_GID:-1000}'
+    working_dir: /app
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    environment:
+      HOME: /tmp
+      npm_config_cache: /tmp/.npm
+      # Polling dla bind mountów, gdzie inotify nie działa (Docker Desktop na macOS/Windows).
+      CHOKIDAR_USEPOLLING: 'true'
+      ASTRO_TELEMETRY_DISABLED: '1'
+    volumes:
+      - ..:/app
+      - node_modules:/app/node_modules
+    ports:
+      - '127.0.0.1:4321:4321'
+    # npm ci tylko gdy package-lock.json się zmienił od ostatniej instalacji.
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        if ! sha256sum package-lock.json | cmp -s - node_modules/.lock-hash; then
+          npm ci
+          sha256sum package-lock.json > node_modules/.lock-hash
+        fi
+        exec npm run dev -- --host 0.0.0.0 --port 4321
+
+volumes:
+  node_modules:

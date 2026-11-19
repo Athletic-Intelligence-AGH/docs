@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+# Referencyjny skrypt dla VPS: /usr/local/sbin/deploy-docs. Uruchamiany RĘCZNIE:
+#   sudo deploy-docs vX.Y.Z
+# Rollback to ten sam skrypt z poprzednią wersją (skrypt wypisuje, jaka była poprzednia).
+#
+# To nasze założenie: repo athletic-hub nie pokazuje kroku, który kładzie pliki z obrazu
+# do katalogu serwowanego przez Caddy. Jeśli na VPS jest już taki skrypt dla huba,
+# użyj jego wzorca zamiast tego pliku.
+#
+# Obraz (jak w athletic-hub) zawiera tylko pliki statyczne w /site. Skrypt wyciąga je do
+# /opt/athletic-docs/releases/<wersja>/ i atomowo przełącza symlink /opt/athletic-docs/current,
+# który Caddy widzi jako /srv/docs/current.
+set -euo pipefail
+
+VERSION="${1:?Usage: deploy-docs vX.Y.Z}"
+
+# Tylko stabilne wydania (obrazy -rc nie są publikowane).
+if [[ ! "$VERSION" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+  echo "Invalid Docs version: $VERSION"
+  exit 1
+fi
+
+# IMAGE: domyślnie obraz z GHCR. Bez release'u zbuduj lokalnie `docker build -t docs:local .`
+# i uruchom jako root: IMAGE=docs:local deploy-docs vX.Y.Z
+IMAGE="${IMAGE:-ghcr.io/athletic-intelligence-agh/docs:$VERSION}"
+ROOT="${DOCS_ROOT:-/opt/athletic-docs}"
+LOCK_FILE="${DOCS_LOCK_FILE:-/run/lock/docs-deploy.lock}"
+KEEP=5
+
+RELEASES="$ROOT/releases"
+TARGET="$RELEASES/$VERSION"
+CURRENT="$ROOT/current"
+
+# Prevent concurrent deployments
+exec 9>"$LOCK_FILE"
+flock -n 9 || {
+  echo "Another deployment is already running"
+  exit 1
+}
+
+mkdir -p "$RELEASES"
+
+# Capture current version (pusto przy pierwszym wdrożeniu)
+PREVIOUS=""
+if [[ -L "$CURRENT" ]]; then
+  PREVIOUS="$(basename "$(readlink "$CURRENT")")"
+fi
+
+echo "Deploying Docs: ${PREVIOUS:-none} -> $VERSION (image: $IMAGE)"
+
+# Pobierz obraz przed jakąkolwiek zmianą (lokalny obraz bez rejestru pomijamy)
+case "$IMAGE" in
+  ghcr.io/*) docker pull "$IMAGE" ;;
+  *) docker image inspect "$IMAGE" >/dev/null ;;
+esac
+
+# Wyciągnij /site do katalogu tymczasowego, sprawdź i dopiero potem nadaj docelową nazwę
+STAGING="$(mktemp -d "$RELEASES/.staging.XXXXXX")"
+CONTAINER=""
+cleanup() {
+  [[ -z "$CONTAINER" ]] || docker rm "$CONTAINER" >/dev/null 2>&1 || true
+  rm -rf "${STAGING:?}"
+}
+trap cleanup EXIT
+
+CONTAINER="$(docker create "$IMAGE")"
+docker cp "$CONTAINER:/site/." "$STAGING/"
+
+if [[ ! -f "$STAGING/index.html" || ! -f "$STAGING/404.html" ]]; then
+  echo "Image does not look like a Docs build (missing index.html or 404.html)"
+  exit 1
+fi
+
+chmod -R u=rwX,go=rX "$STAGING"
+
+# Ta sama wersja wdrożona ponownie: poprzedni katalog zostaje, dopóki przełączenie się nie uda
+if [[ -e "$TARGET" ]]; then
+  rm -rf "${TARGET:?}.old"
+  mv "$TARGET" "$TARGET.old"
+fi
+mv "$STAGING" "$TARGET"
+rm -rf "${TARGET:?}.old"
+
+# Atomowa zamiana: względny symlink (w Caddy to /srv/docs/releases/..., nie ścieżka hosta) + mv -T
+ln -sfn "releases/$VERSION" "$ROOT/.current.new"
+mv -T "$ROOT/.current.new" "$CURRENT"
+
+# Sprzątanie: zostaw $KEEP najnowszych wydań (bieżące i poprzednie zawsze zostają)
+mapfile -t OLD < <(
+  find "$RELEASES" -mindepth 1 -maxdepth 1 -type d -name 'v*' -printf '%T@ %f\n' \
+    | sort -rn | awk -v keep="$KEEP" 'NR > keep { print $2 }'
+)
+for name in "${OLD[@]}"; do
+  if [[ "$name" != "$VERSION" && "$name" != "$PREVIOUS" ]]; then
+    rm -rf "${RELEASES:?}/$name"
+  fi
+done
+
+echo "Successfully deployed Docs $VERSION"
+echo "Previous version: ${PREVIOUS:-none}"
+if [[ -n "$PREVIOUS" ]]; then
+  echo "Rollback: sudo deploy-docs $PREVIOUS (obraz $PREVIOUS musi być dostępny w GHCR albo lokalnie jako IMAGE)"
+  echo "Szybki rollback bez obrazu: ln -sfn releases/$PREVIOUS $ROOT/.current.new && mv -T $ROOT/.current.new $CURRENT"
+fi
+echo "Check: curl -fsSI https://docs.aisports.pl/"
+ls -l "$CURRENT"

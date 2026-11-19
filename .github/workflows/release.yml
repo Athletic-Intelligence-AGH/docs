@@ -1,0 +1,185 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
+
+permissions:
+  contents: read
+
+# Jedno wydanie naraz; nie przerywamy trwającego deployu.
+concurrency:
+  group: docs-release
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate tag
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      prerelease: ${{ steps.meta.outputs.prerelease }}
+
+    steps:
+      - name: Validate version
+        id: meta
+        shell: bash
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          # SemVer: vX.Y.Z albo vX.Y.Z-rc.N (bez zer wiodących).
+          if [[ ! "$TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-rc\.(0|[1-9][0-9]*))?$ ]]; then
+            echo "::error::Invalid release tag: $TAG"
+            exit 1
+          fi
+
+          PRERELEASE=false
+          if [[ "$TAG" == *-rc.* ]]; then
+            PRERELEASE=true
+          fi
+
+          {
+            echo "version=$TAG"
+            echo "prerelease=$PRERELEASE"
+          } >> "$GITHUB_OUTPUT"
+
+  verify:
+    name: Lint, check, build
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v4
+        with:
+          # Pełna historia: Starlight liczy z niej "ostatnią aktualizację".
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Astro check
+        run: npm run check
+
+      - name: Build
+        run: npm run build
+
+      - name: Check internal links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          fail: true
+          args: >-
+            --offline
+            --no-progress
+            --root-dir "${{ github.workspace }}/dist"
+            --include-fragments
+            "./dist/**/*.html"
+
+  image:
+    name: ${{ needs.validate.outputs.prerelease == 'true' && 'Build image (dry-run)' || 'Build and publish image' }}
+    needs: [validate, verify]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Dla -rc obraz tylko się buduje (dry-run), więc logowanie nie jest potrzebne.
+      - name: Login to GHCR
+        if: needs.validate.outputs.prerelease == 'false'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ needs.validate.outputs.prerelease == 'false' }}
+          tags: |
+            ghcr.io/athletic-intelligence-agh/docs:${{ needs.validate.outputs.version }}
+            ghcr.io/athletic-intelligence-agh/docs:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ needs.validate.outputs.version }}
+
+      - name: Image summary
+        shell: bash
+        env:
+          VERSION: ${{ needs.validate.outputs.version }}
+          PRERELEASE: ${{ needs.validate.outputs.prerelease }}
+        run: |
+          {
+            if [[ "$PRERELEASE" == "true" ]]; then
+              echo "## Dry-run (release candidate)"
+              echo "Version: $VERSION"
+              echo "Build przeszedł. Obraz nie został wypchnięty."
+            else
+              echo "## Image published"
+              echo "- ghcr.io/athletic-intelligence-agh/docs:$VERSION"
+              echo "- ghcr.io/athletic-intelligence-agh/docs:sha-$GITHUB_SHA"
+              echo
+              echo "Wdrożenie na VPS: deploy-docs $VERSION (patrz deploy/README.md)."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  release:
+    name: GitHub Release
+    needs: [validate, image]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Create GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.validate.outputs.version }}
+          PRERELEASE: ${{ needs.validate.outputs.prerelease }}
+        run: |
+          set -euo pipefail
+
+          # Idempotentnie: ponowne uruchomienie nie wywala się na istniejącym wydaniu.
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists, skipping."
+            exit 0
+          fi
+
+          FLAGS=(--verify-tag --generate-notes --title "$TAG")
+          if [[ "$PRERELEASE" == "true" ]]; then
+            FLAGS+=(--prerelease)
+          fi
+
+          gh release create "$TAG" "${FLAGS[@]}"

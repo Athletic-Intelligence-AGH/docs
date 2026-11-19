@@ -1,0 +1,11 @@
+.git
+.github
+.claude
+.astro
+node_modules
+dist
+deploy
+Dockerfile
+.dockerignore
+.env*
+npm-debug.log*
