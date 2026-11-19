@@ -1,7 +1,8 @@
 ---
 // Kopia PageFrame ze Starlight z jedną zmianą: punkt przełączenia szuflady/sidebara wynosi 900px
 // (56.25em, zgodnie z designem) zamiast 800px. Stylowanie wyglądu: src/styles/layout.css.
-import MobileMenuToggle from 'virtual:starlight/components/MobileMenuToggle';
+// Import bezpośredni zamiast `virtual:starlight/components/*` (brak typów dla modułu wirtualnego w `astro check`).
+import MobileMenuToggle from './MobileMenuToggle.astro';
 
 const { hasSidebar } = Astro.locals.starlightRoute;
 ---
