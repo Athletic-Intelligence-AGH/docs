@@ -1,0 +1,34 @@
+name: Funkcjonalność
+description: Nowa strona, sekcja lub funkcja dokumentacji
+title: 'feat: '
+labels: ['feature']
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Kontekst i cel
+      description: Jaki problem rozwiązujemy i dla kogo?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Zakres
+      description: Co wchodzi w zakres, a co jawnie nie.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Kryteria akceptacji
+      description: Lista warunków, po spełnieniu których issue jest zamknięte.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Dodatkowe informacje
+      description: Linki, szkice, powiązane issues.

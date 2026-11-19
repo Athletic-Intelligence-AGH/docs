@@ -1,0 +1,41 @@
+name: Błąd
+description: Coś nie działa lub treść jest nieprawidłowa
+title: 'fix: '
+labels: ['bug']
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Opis błędu
+      description: Co się dzieje? Podaj adres strony lub ścieżkę pliku.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Kroki do odtworzenia
+      placeholder: |
+        1. Wejdź na ...
+        2. Kliknij ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Oczekiwane zachowanie
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Środowisko
+      description: Przeglądarka, system, wersja (tag) lub środowisko lokalne.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Kryteria akceptacji
+      description: Jak poznamy, że błąd jest naprawiony?
+      placeholder: |
+        - [ ] ...
+    validations:
+      required: true

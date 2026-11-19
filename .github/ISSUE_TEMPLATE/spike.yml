@@ -1,0 +1,29 @@
+name: Spike (badanie)
+description: Ograniczone czasowo badanie lub prototyp, który ma odpowiedzieć na pytanie
+title: 'spike: '
+labels: ['spike']
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Pytanie badawcze
+      description: Na co chcemy znaleźć odpowiedź?
+    validations:
+      required: true
+  - type: input
+    id: timebox
+    attributes:
+      label: Limit czasu
+      description: Maksymalny czas poświęcony na badanie, np. 4 h.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Kryteria akceptacji
+      description: Jaki wynik uznajemy za zakończenie (np. notatka z rekomendacją).
+      placeholder: |
+        - [ ] Odpowiedź na pytanie badawcze opisana w issue lub w docs
+        - [ ] Rekomendacja i kolejne kroki
+    validations:
+      required: true
