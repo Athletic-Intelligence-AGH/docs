@@ -1,0 +1,23 @@
+---
+import type { StarlightRouteData } from '@astrojs/starlight/route-data';
+import { ui } from './ui-strings';
+
+const { entry, sidebar, lang } = Astro.locals.starlightRoute;
+const t = ui(lang);
+
+type Entry = StarlightRouteData['sidebar'][number];
+const hasCurrent = (e: Entry): boolean =>
+  e.type === 'link' ? e.isCurrent : e.entries.some(hasCurrent);
+
+// Okruszek: „Dokumentacja · {grupa z sidebara}”.
+const group = sidebar.find((e) => e.type === 'group' && hasCurrent(e));
+const crumb = group ? `${t.docs} · ${group.label}` : t.docs;
+const { title, description } = entry.data;
+---
+
+<div class="crumb">
+  <i class="sq" style="background: var(--ink)"></i>
+  <span class="ov">{crumb}</span>
+</div>
+<h1 id="_top">{title}</h1>
+{description && <p class="lead">{description}</p>}

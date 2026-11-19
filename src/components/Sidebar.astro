@@ -1,0 +1,123 @@
+---
+import LanguageSwitch from './LanguageSwitch.astro';
+import SidebarList from './SidebarList.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import { HUB_URL, ui } from './ui-strings';
+import logo from '../assets/logo.svg?raw';
+
+const { sidebar, lang, siteTitleHref } = Astro.locals.starlightRoute;
+const t = ui(lang);
+
+// Linki na najwyższym poziomie (bez grupy) trafiają do wspólnej, bezetykietowej sekcji.
+const sections = sidebar.reduce<Array<{ label?: string; entries: typeof sidebar; id: string }>>(
+  (acc, entry, index) => {
+    if (entry.type === 'group') {
+      acc.push({ label: entry.label, entries: entry.entries, id: `nav-group-${index}` });
+    } else {
+      const last = acc[acc.length - 1];
+      if (last && !last.label) last.entries.push(entry);
+      else acc.push({ entries: [entry], id: `nav-group-${index}` });
+    }
+    return acc;
+  },
+  [],
+);
+---
+
+<div class="drawer-head">
+  <a class="mbrand" href={siteTitleHref}>
+    <span class="mark" aria-hidden="true" set:html={logo} />
+    <span class="bt" translate="no">
+      {t.brandName}
+    </span>
+  </a>
+  <button
+    type="button"
+    class="icon-btn"
+    popovertarget="starlight__sidebar"
+    popovertargetaction="hide"
+    data-drawer-close
+    aria-label={t.closeMenu}
+  >
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m6 6 12 12M18 6 6 18"></path>
+    </svg>
+  </button>
+</div>
+
+<button type="button" class="drawer-search" data-drawer-search>
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="11" cy="11" r="7"></circle>
+    <path d="m20 20-3.5-3.5"></path>
+  </svg>
+  {t.searchDocs}
+</button>
+
+<div class="nav-groups">
+  {sections.map((section) => (
+    <div class="ng">
+      {section.label && (
+        <p class="nt" id={section.id}>
+          <i class="sq" />
+          <span class="ov">{section.label}</span>
+        </p>
+      )}
+      <div role="group" aria-labelledby={section.label ? section.id : undefined}>
+        <SidebarList entries={section.entries} />
+      </div>
+    </div>
+  ))}
+</div>
+
+<div class="drawer-foot">
+  <LanguageSwitch />
+  <a class="pill" href={HUB_URL}>
+    {t.hub}
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M7 17 17 7M8 7h9v9"></path>
+    </svg>
+  </a>
+  <ThemeToggle />
+</div>
+
+<script>
+  // „Szukaj” w szufladzie: zamknij szufladę (zdejmuje inert) i otwórz wyszukiwarkę z nagłówka.
+  document.querySelectorAll<HTMLElement>('[data-drawer-search]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.getElementById('starlight__sidebar')?.hidePopover?.();
+      setTimeout(() => {
+        document.querySelector<HTMLButtonElement>('site-search button[data-open-modal]')?.click();
+      }, 0);
+    });
+  });
+</script>

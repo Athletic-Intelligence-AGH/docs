@@ -1,0 +1,112 @@
+---
+// Kopia PageFrame ze Starlight z jedną zmianą: punkt przełączenia szuflady/sidebara wynosi 900px
+// (56.25em, zgodnie z designem) zamiast 800px. Stylowanie wyglądu: src/styles/layout.css.
+// Import bezpośredni zamiast `virtual:starlight/components/*` (brak typów dla modułu wirtualnego w `astro check`).
+import MobileMenuToggle from './MobileMenuToggle.astro';
+
+const { hasSidebar } = Astro.locals.starlightRoute;
+---
+
+<div class="page sl-flex">
+  <header class="header">
+    <slot name="header" />
+  </header>
+  {hasSidebar && (
+    <nav class="sidebar print:hidden" aria-label={Astro.locals.t('sidebarNav.accessibleLabel')}>
+      <MobileMenuToggle />
+      <script>
+        // Szuflada używa Popover API. Na desktopie atrybut popover jest zdejmowany, a podczas
+        // otwarcia szuflady fokus jest zatrzaskiwany (inert na reszcie strony) i trafia na „Zamknij”.
+        class StarlightSidebarPane extends HTMLElement {
+          constructor() {
+            super();
+
+            const desktopMediaQuery = matchMedia('(min-width: 56.25em)');
+
+            const resetPopoverAttribute = () => {
+              this.popover = desktopMediaQuery.matches ? null : 'auto';
+            };
+            resetPopoverAttribute();
+            desktopMediaQuery.addEventListener('change', () => resetPopoverAttribute());
+
+            this.addEventListener('toggle', ({ newState }) => this.trapFocus(newState === 'open'));
+          }
+          trapFocus(shouldTrap: boolean) {
+            document.querySelectorAll<HTMLElement>('.main-frame, .sl-skip-link').forEach((el) => {
+              el.toggleAttribute('inert', shouldTrap);
+            });
+            if (shouldTrap) this.querySelector<HTMLElement>('[data-drawer-close]')?.focus();
+          }
+        }
+        customElements.define('sl-sidebar-pane', StarlightSidebarPane);
+      </script>
+      <sl-sidebar-pane popover="" id="starlight__sidebar" class="sidebar-pane">
+        <div class="sidebar-content sl-flex">
+          <slot name="sidebar" />
+        </div>
+      </sl-sidebar-pane>
+    </nav>
+  )}
+  <div class="main-frame">
+    <slot />
+  </div>
+</div>
+
+<style>
+  @layer starlight.core {
+    .page {
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .header {
+      z-index: var(--sl-z-index-navbar);
+      position: fixed;
+      inset-inline-start: 0;
+      inset-block-start: 0;
+      width: 100%;
+      height: var(--sl-nav-height);
+      border-bottom: 1px solid var(--sl-color-hairline-shade);
+      background-color: var(--sl-color-bg-nav);
+    }
+
+    .sidebar-pane {
+      /* Domyślne style popovera z przeglądarki nie są potrzebne. */
+      border: unset;
+      padding: unset;
+      height: unset;
+      color: unset;
+      margin: 0;
+
+      position: fixed;
+      z-index: var(--sl-z-index-menu);
+      inset-block: 0;
+      inset-inline: 0 auto;
+      width: min(320px, 100%);
+      background-color: var(--sl-color-black);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    .sidebar-content {
+      height: 100%;
+      min-height: max-content;
+      flex-direction: column;
+    }
+
+    .main-frame {
+      padding-top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height));
+      padding-inline-start: var(--sl-content-inline-start);
+    }
+
+    @media (min-width: 56.25em) {
+      .sidebar-pane {
+        display: block;
+        inset-block: var(--sl-nav-height) 0;
+        width: var(--sl-sidebar-width);
+        background-color: var(--sl-color-bg-sidebar);
+        border-inline-end: 1px solid var(--sl-color-hairline-shade);
+      }
+    }
+  }
+</style>
