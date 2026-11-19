@@ -19,11 +19,13 @@ export default defineConfig({
       editLink: { baseUrl: GITHUB_EDIT_BASE },
       lastUpdated: true,
       social: [
-        { icon: 'github', label: 'GitHub', href: 'https://github.com/Athletic-Intelligence-AGH/docs' },
+        {
+          icon: 'github',
+          label: 'GitHub',
+          href: 'https://github.com/Athletic-Intelligence-AGH/docs',
+        },
       ],
-      sidebar: [
-        { label: 'Start', items: ['wprowadzenie'] },
-      ],
+      sidebar: [{ label: 'Start', items: ['wprowadzenie'] }],
     }),
   ],
 });
