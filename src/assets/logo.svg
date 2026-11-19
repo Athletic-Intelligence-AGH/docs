@@ -1,0 +1,5 @@
+<!-- TODO: placeholder „AI”. Podmień ten plik na docelowe logo (zachowaj nazwę src/assets/logo.svg). -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28" role="img" aria-label="Athletic Intelligence">
+  <rect width="28" height="28" rx="8" fill="currentColor"/>
+  <text x="14" y="18.5" text-anchor="middle" font-family="Lexend, system-ui, sans-serif" font-weight="700" font-size="12" fill="#07080b">AI</text>
+</svg>
