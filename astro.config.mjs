@@ -55,6 +55,24 @@ export default defineConfig({
           ],
         },
       ],
+      customCss: [
+        '@fontsource/lexend/400.css',
+        '@fontsource/lexend/500.css',
+        '@fontsource/lexend/600.css',
+        '@fontsource/lexend/700.css',
+        './src/styles/tokens.css',
+        './src/styles/layout.css',
+      ],
+      components: {
+        Header: './src/components/Header.astro',
+        Sidebar: './src/components/Sidebar.astro',
+        TableOfContents: './src/components/TableOfContents.astro',
+        Pagination: './src/components/Pagination.astro',
+        PageTitle: './src/components/PageTitle.astro',
+        MobileMenuToggle: './src/components/MobileMenuToggle.astro',
+        // Kopia ze Starlight: breakpoint szuflady 900px (800px w oryginale).
+        PageFrame: './src/components/PageFrame.astro',
+      },
     }),
   ],
 });

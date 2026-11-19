@@ -1,0 +1,47 @@
+---
+import Search from '@astrojs/starlight/components/Search.astro';
+import logo from '../assets/logo.svg?raw';
+import LanguageSwitch from './LanguageSwitch.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import { HUB_URL, ui } from './ui-strings';
+
+const { lang, siteTitleHref } = Astro.locals.starlightRoute;
+const t = ui(lang);
+---
+
+<div class="hdr">
+  <a class="brand" href={siteTitleHref}>
+    <span class="mark" aria-hidden="true" set:html={logo} />
+    <span class="brand-text">
+      <span class="bt" translate="no">
+        {t.brandName}
+      </span>
+      <span class="bs ov" translate="no">
+        {t.brandSub}
+      </span>
+    </span>
+  </a>
+  <div class="hdr-search">
+    <Search />
+  </div>
+  <div class="hdr-actions">
+    <LanguageSwitch />
+    <a class="pill" href={HUB_URL}>
+      {t.hub}
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M7 17 17 7M8 7h9v9"></path>
+      </svg>
+    </a>
+    <ThemeToggle />
+  </div>
+</div>

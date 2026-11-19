@@ -1,0 +1,40 @@
+---
+import { LOCALES, ui } from './ui-strings';
+
+const { lang, locale } = Astro.locals.starlightRoute;
+const t = ui(lang);
+
+/** Ścieżka bieżącej strony bez prefiksu języka. */
+const currentPrefix = locale ? `/${locale}` : '';
+let bare = Astro.url.pathname;
+if (currentPrefix && (bare === currentPrefix || bare.startsWith(`${currentPrefix}/`))) {
+  bare = bare.slice(currentPrefix.length) || '/';
+}
+const items = LOCALES.map((l) => ({
+  ...l,
+  href: `${l.prefix}${bare}` || '/',
+  current: l.prefix === currentPrefix,
+}));
+---
+
+<div class="lang" role="group" aria-label={t.language}>
+  {items.map((l) => (
+    <a
+      class:list={['pill', { 'pill-on': l.current }]}
+      href={l.href}
+      lang={l.code}
+      hreflang={l.code}
+      aria-label={`${l.short}: ${l.label}`}
+      aria-current={l.current ? 'true' : undefined}
+    >
+      {l.short}
+    </a>
+  ))}
+</div>
+
+<style>
+  .lang {
+    display: inline-flex;
+    gap: 4px;
+  }
+</style>

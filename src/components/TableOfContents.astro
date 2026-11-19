@@ -1,0 +1,71 @@
+---
+import type { StarlightRouteData } from '@astrojs/starlight/route-data';
+
+const { toc } = Astro.locals.starlightRoute;
+
+type Item = NonNullable<StarlightRouteData['toc']>['items'][number];
+const flatten = (items: Item[], depth = 0): Array<{ slug: string; text: string; depth: number }> =>
+  items.flatMap((item) => [
+    { slug: item.slug, text: item.text, depth },
+    ...flatten(item.children, depth + 1),
+  ]);
+
+// Pierwszy wpis („Przegląd”, id `_top`) pomijamy: design zaczyna od nagłówków sekcji.
+const links = toc ? flatten(toc.items).filter((l) => l.slug !== '_top') : [];
+---
+
+{links.length > 0 && (
+  <toc-nav>
+    <nav aria-labelledby="starlight__on-this-page">
+      <h2 id="starlight__on-this-page" class="toc-t">
+        <i class="sq" />
+        <span class="ov">{Astro.locals.t('tableOfContents.onThisPage')}</span>
+      </h2>
+      <ul>
+        {links.map((l) => (
+          <li style={`--depth:${l.depth}`}>
+            <a href={`#${l.slug}`}>{l.text}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </toc-nav>
+)}
+
+<script>
+  // Podświetla w spisie treści sekcję, w której aktualnie jesteśmy.
+  class TocNav extends HTMLElement {
+    constructor() {
+      super();
+      const links = Array.from(this.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
+      const targets = links
+        .map((a) => document.getElementById(decodeURIComponent(a.hash.slice(1))))
+        .map((el, i) => ({ el, link: links[i]! }))
+        .filter((t): t is { el: HTMLElement; link: HTMLAnchorElement } => t.el !== null);
+      if (targets.length === 0) return;
+
+      let ticking = false;
+      const update = () => {
+        ticking = false;
+        let current = targets[0]!;
+        for (const t of targets) {
+          if (t.el.getBoundingClientRect().top <= 120) current = t;
+        }
+        for (const t of targets) {
+          if (t === current) t.link.setAttribute('aria-current', 'true');
+          else t.link.removeAttribute('aria-current');
+        }
+      };
+      const onScroll = () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(update);
+        }
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      update();
+    }
+  }
+  customElements.define('toc-nav', TocNav);
+</script>
