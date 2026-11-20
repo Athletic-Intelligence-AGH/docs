@@ -1,0 +1,25 @@
+# Fragment do dopisania w athletic-infra/caddy/Caddyfile (po stronie repo athletic-infra).
+# Wymaga w compose Caddy wolumenu: /opt/athletic-docs:/srv/docs:ro (patrz deploy/README.md).
+docs.aisports.pl {
+    encode zstd gzip
+
+    root * /srv/docs/current
+
+    # Pliki z hashem w nazwie: rok. Indeks wyszukiwarki: godzina. Reszta (HTML): rewalidacja.
+    @immutable path /_astro/*
+    header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+    @pagefind path /pagefind/*
+    header @pagefind Cache-Control "public, max-age=3600"
+
+    @html not path /_astro/* /pagefind/*
+    header @html Cache-Control "no-cache"
+
+    try_files {path} {path}/index.html
+    file_server
+
+    handle_errors {
+        rewrite * /404.html
+        file_server
+    }
+}
